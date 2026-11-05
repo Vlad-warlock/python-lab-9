@@ -354,7 +354,7 @@ print(b)  # [1, 2, 5, 9] (новий!)</pre>
                             <button onclick="copySnippet(this)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2 py-1 rounded-md border border-slate-700 flex items-center gap-1 transition touch-btn shrink-0">📋 Копіювати</button>
                         </div>
                         <p class="text-xs text-slate-300">
-                            <b>Ідея:</b> проходимо по списку зліва направо, порівнюємо сусідні елементи <code>a[j]</code> та <code>a[j+1]</code>. Якщо лівий більший за правий — міняємо їх місцями. Найважче число поступово «спливає» в самий кінець списку.
+                            <b>Ідея:</b> проходимо по списку зліва направо, порівнюємо сусідні елементи <code>a[j]</code> та <code>a[j+1]</code>. Якщо лівий більший за правий — міняємо їх місцями. Найважче число поступово «спливає» у самий кінець списку.
                         </p>
                         <pre class="code-block p-3 text-xs mono text-slate-300 overflow-x-auto">
 # Сортування списку довжиною n за зростанням методом обміну:
@@ -494,7 +494,7 @@ for i in range(n - 1):
                                     <td class="p-2.5">Повертає індекс першого входження елемента <code>x</code></td>
                                 </tr>
                                 <tr>
-                                    <td class="p-2.5 font-semibold text-white">Чи є взагалі такий елемент?</td>
+                                    <td class="p-2.5 font-semibold text-white">Чи є елемент у списку? (наявність)</td>
                                     <td class="p-2.5 mono text-emerald-400">if x in список:</td>
                                     <td class="p-2.5">Повертає <code>True</code>, якщо значення існує, або <code>False</code></td>
                                 </tr>
@@ -684,6 +684,12 @@ print("Сума додатних температур:", s)</pre>
                                     <td class="p-2.5 mono">"ськ" in "Дніпровський"</td>
                                     <td class="p-2.5 text-amber-300">True</td>
                                 </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Вибір символу (індекс)</td>
+                                    <td class="p-2.5 mono text-emerald-400">[i]</td>
+                                    <td class="p-2.5 mono">"Київ"[0]</td>
+                                    <td class="p-2.5 text-amber-300">"К"</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -710,9 +716,9 @@ print("Сума додатних температур:", s)</pre>
                         </div>
                         <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
                             <span class="text-cyan-400 font-bold block mb-1">Зрізи з кроком:</span>
-                            <div><code>s[::2]</code> &rarr; <b>"Іфрмаиа"</b> (кожен другий символ)</div>
-                            <div><code>s[::-1]</code> &rarr; <b>"акитамофрнІ"</b> (крок -1 розгортає задом наперед!)</div>
-                            <div><code>s[2:8:2]</code> &rarr; з 2 по 7 через один символ</div>
+                            <div><code>s[::2]</code> &rarr; <b>"Іфраиа"</b> (кожен другий символ: 0, 2, 4, 6, 8, 10)</div>
+                            <div><code>s[::-1]</code> &rarr; <b>"акитамрофнІ"</b> (крок -1 розгортає рядок задом наперед!)</div>
+                            <div><code>s[2:8:2]</code> &rarr; <b>"фра"</b> (індекси 2, 4, 6 через один символ)</div>
                         </div>
                     </div>
                 </div>
@@ -876,7 +882,7 @@ print("Сума додатних температур:", s)</pre>
                     </div>
                     <div class="flex items-start gap-2">
                         <span class="text-emerald-400 font-bold">✔</span>
-                        <span>Виводить загальну кількість символів у квитку за допомогою функції <code>len()</code>.</span>
+                        <span>Виводить кількість символів у назві заходу за допомогою функції <code>len(event)</code>.</span>
                     </div>
                 </div>
 
@@ -893,7 +899,7 @@ print("Сума додатних температур:", s)</pre>
 ЗАХІД: Шкільне Свято осені
 ⭐ Бонус: Вам надано VIP-місце у 1 ряду!
 👗 Дрес-код: святковий одяг обов'язковий!
-Символів у назві квитка: 27
+Символів у назві заходу: 19
 ***********************************</pre>
                 </div>
 
@@ -903,12 +909,13 @@ print("Сума додатних температур:", s)</pre>
                         <span>📝</span> План дій для написання програми:
                     </div>
                     <ol class="text-xs text-slate-300 space-y-1.5 list-decimal list-inside leading-relaxed">
-                        <li>Запитайте у користувача ім'я та захід через команду <code>input()</code>.</li>
-                        <li>Надрукуйте лінію з 35 зірочок через множення <code>"*" * 35</code>.</li>
-                        <li>Виведіть привітання квитка, склеївши текст через оператор <code>+</code>.</li>
-                        <li>Складіть умову з індексом <code>if name[0] == ...</code> для перевірки першої літери імені.</li>
+                        <li>Запитайте у користувача ім'я (<code>name = input(...)</code>) та захід (<code>event = input(...)</code>).</li>
+                        <li>Надрукуйте лінію з 35 зірочок через множення: <code>print("*" * 35)</code>.</li>
+                        <li>Виведіть рядки квитка, склеївши текст через оператор <code>+</code>.</li>
+                        <li>Складіть умову з індексом <code>if name[0] == "А":</code> для перевірки першої літери імені.</li>
                         <li>Складіть перевірку з оператором <code>if "Свято" in event:</code> для пошуку слова в назві.</li>
-                        <li>Порахуйте та надрукуйте довжину тексту за допомогою функції <code>len()</code>.</li>
+                        <li>Порахуйте та надрукуйте довжину заходу: <code>print("Символів у назві заходу:", len(event))</code>.</li>
+                        <li>Завершіть квиток нижньою лінією: <code>print("*" * 35)</code>.</li>
                     </ol>
                 </div>
             </div>
@@ -956,7 +963,7 @@ print("Сума додатних температур:", s)</pre>
                 btn.className = 'bg-slate-900 border border-indigo-500/40 hover:border-indigo-400 p-2 sm:p-3 rounded-xl flex flex-col items-center min-w-[54px] sm:min-w-[64px] card-anim touch-btn';
                 btn.onclick = () => {
                     document.getElementById('intro-info-box').innerHTML = 
-                        `Елемент <b>a[${i}]</b> дорівнює значенню <span class="text-amber-400 font-bold">${val}</span> (останній можна також викликати як <b>a[${i - introArray.length}]</b>)`;
+                        `Елемент <b>a[${i}]</b> має значення <span class="text-amber-400 font-bold">${val}</span> (його від'ємний індекс: <b>a[${i - introArray.length}]</b>)`;
                 };
                 btn.innerHTML = `
                     <span class="text-[9px] sm:text-[10px] text-slate-400 mono">a[${i}]</span>
@@ -1011,11 +1018,12 @@ print("Сума додатних температур:", s)</pre>
         function stepBubbleSort() {
             for (let i = 0; i < sortArr.length - 1; i++) {
                 if (sortArr[i] > sortArr[i + 1]) {
-                    let temp = sortArr[i];
-                    sortArr[i] = sortArr[i + 1];
-                    sortArr[i + 1] = temp;
+                    const val1 = sortArr[i];
+                    const val2 = sortArr[i + 1];
+                    sortArr[i] = val2;
+                    sortArr[i + 1] = val1;
                     renderSortVisualizer([i, i + 1]);
-                    document.getElementById('sort-code-output').innerText = `Обмін елементів: a[${i}] (${sortArr[i+1]}) та a[${i+1}] (${sortArr[i]}) помінялися місцями!`;
+                    document.getElementById('sort-code-output').innerText = `Обмін сусідніх елементів: a[${i}] (${val1}) та a[${i+1}] (${val2}) помінялися місцями!`;
                     return;
                 }
             }
