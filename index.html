@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#0f172a">
+    <title>Python Data Lab | Списки, Сортування, Пошук та Рядки (9 клас)</title>
+    <script>
+        // Приглушуємо службове попередження Tailwind CDN, щоб консоль була чистою
+        (function() {
+            const origWarn = console.warn;
+            console.warn = function(...args) {
+                for (let i = 0; i < args.length; i++) {
+                    if (typeof args[i] === 'string' && args[i].indexOf('cdn.tailwindcss.com') !== -1) return;
+                }
+                origWarn.apply(console, args);
+            };
+        })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at top, #0f172a, #020617); min-height: 100vh; color: #f8fafc; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .card-anim { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-anim:hover { transform: translateY(-2px); }
+        .code-block { background: #030712; border: 1px solid #1f2937; border-radius: 0.75rem; font-family: 'JetBrains Mono', monospace; }
+        .rule-card { border-left-width: 4px; }
+        pre code { font-family: 'JetBrains Mono', monospace; }
+        button, input, a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        .touch-btn:active { transform: scale(0.97); }
+    </style>
+</head>
+<body class="p-2 sm:p-4 md:p-8 flex flex-col items-center">
+
+    <!-- Головна шапка -->
+    <header class="w-full max-w-5xl bg-slate-800/90 backdrop-blur border border-indigo-500/30 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 mb-3 sm:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 shadow-2xl">
+        <div class="flex items-center gap-2.5 sm:gap-3">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-indigo-500/30 shrink-0">⚡</div>
+            <div>
+                <h1 class="font-extrabold text-base sm:text-xl md:text-2xl text-white tracking-tight leading-tight">Python Data Lab: Списки, Сортування та Рядки</h1>
+                <p class="text-[11px] sm:text-xs md:text-sm text-indigo-300">9 клас • Інтерактивний підручник-тренажер до уроків №19, №20 та №21</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 self-end sm:self-auto">
+            <span class="bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-semibold flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Дистанційний тренажер + Конспекти
+            </span>
+        </div>
+    </header>
+
+    <!-- Навігаційне меню по табах -->
+    <nav class="w-full max-w-5xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1.5 sm:gap-2 mb-3 sm:mb-6" aria-label="Меню тренажера">
+        <button onclick="switchTab(0)" id="tab-0" class="tab-btn touch-btn py-2.5 px-1.5 sm:py-3 sm:px-2 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition text-center flex items-center justify-center gap-1">
+            <span>📖</span> <span>1. Шпаргалка</span>
+        </button>
+        <button onclick="switchTab(1)" id="tab-1" class="tab-btn touch-btn py-2.5 px-1.5 sm:py-3 sm:px-2 rounded-xl font-bold text-xs sm:text-sm bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-center flex items-center justify-center gap-1">
+            <span>📊</span> <span>2. Сортування</span>
+        </button>
+        <button onclick="switchTab(2)" id="tab-2" class="tab-btn touch-btn py-2.5 px-1.5 sm:py-3 sm:px-2 rounded-xl font-bold text-xs sm:text-sm bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-center flex items-center justify-center gap-1">
+            <span>🔍</span> <span>3. Пошук</span>
+        </button>
+        <button onclick="switchTab(3)" id="tab-3" class="tab-btn touch-btn py-2.5 px-1.5 sm:py-3 sm:px-2 rounded-xl font-bold text-xs sm:text-sm bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-center flex items-center justify-center gap-1">
+            <span>🔤</span> <span>4. Рядки</span>
+        </button>
+        <button onclick="switchTab(4)" id="tab-4" class="tab-btn touch-btn col-span-2 sm:col-span-1 py-2.5 px-1.5 sm:py-3 sm:px-2 rounded-xl font-bold text-xs sm:text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition text-center shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-1">
+            <span>🎯</span> <span>5. Практикум і ДЗ</span>
+        </button>
+    </nav>
+
+    <!-- Контейнер вмісту -->
+    <main class="w-full max-w-5xl bg-slate-800/85 border border-slate-700 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 md:p-8 shadow-2xl min-h-[500px]">
+
+        <!-- ========================================================================= -->
+        <!-- TAB 0: ШПАРГАЛКА (УРОКИ 15–16)                                            -->
+        <!-- ========================================================================= -->
+        <section id="panel-0" class="tab-panel space-y-6">
+            <div class="border-b border-slate-700 pb-4">
+                <span class="bg-indigo-900/60 text-indigo-300 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">Базовий фундамент</span>
+                <h2 class="text-xl md:text-2xl font-bold text-white mt-2 flex items-center gap-2">
+                    <span>💡</span> Уроки 15–16: Одновимірні масиви та Списки в Python
+                </h2>
+                <p class="text-sm text-slate-400 mt-1">Освіжіть пам'ять: що таке список, як до нього звертатися та які операції є найважливішими.</p>
+            </div>
+
+            <!-- Інтерактивна демонстрація індексації -->
+            <div class="bg-indigo-950/40 border border-indigo-500/30 rounded-xl p-5">
+                <div class="flex justify-between items-center mb-2 flex-wrap gap-2">
+                    <h3 class="text-sm font-bold text-indigo-300 uppercase tracking-wider">⚡ Живий візуалізатор елементів списку:</h3>
+                    <span class="text-xs text-slate-400">Клікніть на будь-яку комірку</span>
+                </div>
+                <p class="text-xs text-slate-300 mb-3">Зверху вказано індекс з початку (з 0), посередині — значення, знизу — від'ємний індекс з кінця:</p>
+                <div class="flex flex-wrap gap-3 justify-center mb-3" id="intro-array-cells">
+                    <!-- Заповнюється JS -->
+                </div>
+                <div id="intro-info-box" class="bg-slate-900 p-3 rounded-lg text-center mono text-xs md:text-sm text-emerald-400 border border-slate-700">
+                    Клікніть на будь-яку комірку вище, щоб побачити звернення до неї у коді!
+                </div>
+            </div>
+
+            <!-- ПОВНИЙ КОНСПЕКТ 15-16 -->
+            <div class="space-y-5">
+                <h3 class="text-lg font-bold text-indigo-300 border-l-4 border-indigo-500 pl-3">📘 Конспект матеріалу (Теорія і правила):</h3>
+
+                <!-- Правило 1 -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-3">
+                    <div class="flex items-center gap-2 font-bold text-white text-base">
+                        <span class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-xs">1</span>
+                        Що таке одновимірний масив (список) у Python?
+                    </div>
+                    <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+                        У звичайну змінну можна покласти лише <b>одне</b> значення: <code class="text-amber-300">x = 5</code>. Якщо нам треба зберегти оцінки 30 учнів класу або температуру за місяць, заводити 30 окремих змінних незручно.  
+                        Для цього використовують <b>список (list)</b> — це впорядкована послідовність даних під одним спільним іменем. Елементи записуються через кому в <b>квадратних дужках <code>[ ]</code></b>:
+                    </p>
+                    <div class="code-block p-3 text-xs md:text-sm text-emerald-400">
+                        <span class="text-slate-500"># Порожній список:</span><br>
+                        a = []<br><br>
+                        <span class="text-slate-500"># Список оцінок (числа):</span><br>
+                        grades = [10, 8, 12, 7, 9]<br><br>
+                        <span class="text-slate-500"># Список учнів (рядки тексту):</span><br>
+                        names = ["Анна", "Богдан", "Олег"]
+                    </div>
+                </div>
+
+                <!-- Правило 2 -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-3">
+                    <div class="flex items-center gap-2 font-bold text-white text-base">
+                        <span class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-xs">2</span>
+                        Індексація: Чому рахунок починається з НУЛЯ?
+                    </div>
+                    <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+                        Кожен елемент списку має свій порядковий номер — <b>індекс</b>.  
+                        <b class="text-amber-400">Головне правило Python:</b> нумерація починається з <span class="bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded font-mono font-bold">0</span>, а не з 1!
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm">
+                        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                            <span class="text-cyan-400 font-bold block mb-1">Пряма індексація (зліва направо):</span>
+                            <code>a[0]</code> — перший елемент списку<br>
+                            <code>a[1]</code> — другий елемент<br>
+                            <code>a[2]</code> — третій елемент
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                            <span class="text-purple-400 font-bold block mb-1">Зворотна індексація (справа наліво):</span>
+                            <code>a[-1]</code> — останній елемент списку<br>
+                            <code>a[-2]</code> — передостанній елемент<br>
+                            <code>a[-len(a)]</code> — найперший елемент
+                        </div>
+                    </div>
+                    <div class="p-3 bg-rose-950/30 border border-rose-500/40 rounded-lg text-xs text-rose-300">
+                        ⚠️ <b>Помилка IndexError: list index out of range</b> виникає, коли ви звертаєтеся до індексу, якого немає у списку (наприклад, у списку з 3 елементів спробували викликати <code>a[5]</code>).
+                    </div>
+                </div>
+
+                <!-- Правило 3 -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-3">
+                    <div class="flex items-center gap-2 font-bold text-white text-base">
+                        <span class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-xs">3</span>
+                        Основні дії та команди зі списками
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs md:text-sm border border-slate-700">
+                            <thead class="bg-slate-950 text-indigo-300 font-bold">
+                                <tr>
+                                    <th class="p-2.5 border-b border-slate-700">Дія</th>
+                                    <th class="p-2.5 border-b border-slate-700">Команда в Python</th>
+                                    <th class="p-2.5 border-b border-slate-700">Приклад результату</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300">
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Кількість елементів</td>
+                                    <td class="p-2.5 mono text-emerald-400">len(a)</td>
+                                    <td class="p-2.5">Якщо <code>a = [5, 9, 2]</code>, поверне <code>3</code></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Додати в кінець</td>
+                                    <td class="p-2.5 mono text-emerald-400">a.append(значення)</td>
+                                    <td class="p-2.5"><code>a.append(10)</code> додасть число 10 останнім</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Змінити елемент</td>
+                                    <td class="p-2.5 mono text-emerald-400">a[індекс] = нове</td>
+                                    <td class="p-2.5"><code>a[0] = 100</code> змінить перше число на 100</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Сума всіх чисел</td>
+                                    <td class="p-2.5 mono text-emerald-400">sum(a)</td>
+                                    <td class="p-2.5"><code>sum([10, 20, 30])</code> поверне <code>60</code></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Середнє значення</td>
+                                    <td class="p-2.5 mono text-emerald-400">sum(a) / len(a)</td>
+                                    <td class="p-2.5">Сума ділиться на загальну кількість</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Правило 4 -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-3">
+                    <div class="flex items-center gap-2 font-bold text-white text-base">
+                        <span class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-xs">4</span>
+                        Як вводити список з клавіатури?
+                    </div>
+                    <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+                        Є два способи, які вивчають у 9 класі:
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm">
+                        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-1 relative">
+                            <div class="flex justify-between items-center gap-2">
+                                <span class="text-amber-400 font-bold block mb-1">Спосіб 1: По одному в циклі</span>
+                                <button onclick="copySnippet(this)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2 py-0.5 rounded-md border border-slate-700 flex items-center gap-1 transition touch-btn shrink-0">📋 Копіювати</button>
+                            </div>
+                            <pre class="mono text-slate-300 text-xs bg-slate-900 p-2 rounded overflow-x-auto">
+a = []
+for i in range(5):
+    x = int(input("Число: "))
+    a.append(x)</pre>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-1 relative">
+                            <div class="flex justify-between items-center gap-2">
+                                <span class="text-emerald-400 font-bold block mb-1">Спосіб 2: В один рядок через пропуск</span>
+                                <button onclick="copySnippet(this)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2 py-0.5 rounded-md border border-slate-700 flex items-center gap-1 transition touch-btn shrink-0">📋 Копіювати</button>
+                            </div>
+                            <pre class="mono text-slate-300 text-xs bg-slate-900 p-2 rounded overflow-x-auto">
+# Вводимо: 10 20 30 40 50
+a = list(map(int, input().split()))</pre>
+                            <p class="text-[11px] text-slate-400 mt-1">Функція <code>split()</code> ріже рядок по пропусках, а <code>map(int, ...)</code> робить їх числами.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 1: СОРТУВАННЯ (УРОК 19)                                               -->
+        <!-- ========================================================================= -->
+        <section id="panel-1" class="tab-panel hidden space-y-6">
+            <div class="border-b border-slate-700 pb-4">
+                <span class="bg-indigo-900/60 text-indigo-300 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">Тема 19</span>
+                <h2 class="text-xl md:text-2xl font-bold text-white mt-2 flex items-center gap-2">
+                    <span>📊</span> Урок 19: Сортування даних у списках
+                </h2>
+                <p class="text-sm text-slate-400 mt-1">Що таке сортування, вбудовані методи Python та класичні алгоритми обміну й вибору.</p>
+            </div>
+
+            <!-- Інтерактивний тренажер сортування -->
+            <div class="bg-slate-900/90 border border-slate-700 p-5 rounded-2xl">
+                <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                        Інтерактивний візуалізатор списку <code>a</code>:
+                    </span>
+                    <button onclick="resetSortArray()" class="text-xs text-indigo-400 hover:text-indigo-300 underline font-semibold">🔄 Згенерувати новий список</button>
+                </div>
+
+                <div class="flex justify-center items-end gap-2 md:gap-4 h-36 border-b border-slate-800 pb-2 mb-4 overflow-x-auto" id="sort-visualizer">
+                    <!-- Заповнюється JS стовпчиками -->
+                </div>
+
+                <!-- Кнопки дій -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                    <button onclick="sortAscending()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-600/30">
+                        <span>🔼</span> За зростанням
+                    </button>
+                    <button onclick="sortDescending()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-1.5 shadow-lg shadow-purple-600/30">
+                        <span>🔽</span> За спаданням
+                    </button>
+                    <button onclick="stepBubbleSort()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-1.5 shadow-lg shadow-amber-600/30">
+                        <span>🫧</span> 1 крок Бульбашки
+                    </button>
+                    <button onclick="resetSortArray()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-2.5 px-3 rounded-xl text-xs md:text-sm transition">
+                        ✖ Скинути
+                    </button>
+                </div>
+
+                <!-- Вікно коду -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mono text-xs md:text-sm">
+                    <div class="text-slate-500 text-[11px] mb-1"># Код Python для виконання цієї дії:</div>
+                    <div id="sort-code-output" class="text-emerald-400 font-bold"># Натисніть кнопку сортування вище</div>
+                </div>
+            </div>
+
+            <!-- ПОВНИЙ КОНСПЕКТ УРОКУ 19 -->
+            <div class="space-y-5">
+                <h3 class="text-lg font-bold text-indigo-300 border-l-4 border-indigo-500 pl-3">📘 Конспект уроку №19:</h3>
+
+                <!-- Блок 1: Визначення -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-2">
+                    <h4 class="font-bold text-white text-base">1. Що таке сортування і навіщо воно потрібне?</h4>
+                    <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+                        <b>Сортування</b> — це впорядкування елементів списку за певним правилом:
+                    </p>
+                    <ul class="text-xs md:text-sm text-slate-300 space-y-1 list-disc list-inside">
+                        <li><b>За зростанням (неспаданням):</b> кожен наступний елемент більший за попередній або дорівнює йому: <code class="text-amber-300">[1, 3, 5, 8, 12]</code>.</li>
+                        <li><b>За спаданням (незростанням):</b> кожен наступний менший або дорівнює попередньому: <code class="text-amber-300">[12, 8, 5, 3, 1]</code>.</li>
+                    </ul>
+                    <p class="text-xs text-slate-400 italic mt-2">
+                        💡 <b>Навіщо сортувати?</b> У відсортованому списку шукати дані в рази швидше (як у словнику чи класному журналі за алфавітом). Також це основа визначення переможців змагань, формування топ-рейтингів тощо.
+                    </p>
+                </div>
+
+                <!-- Блок 2: Вбудовані засоби Python -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-3">
+                    <h4 class="font-bold text-white text-base">2. Вбудовані засоби Python: метод <code>sort()</code> та функція <code>sorted()</code></h4>
+                    <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+                        У мові Python розробники вже створили надшвидкі готові інструменти:
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs md:text-sm">
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 relative">
+                            <div class="flex justify-between items-center gap-2">
+                                <span class="text-emerald-400 font-bold block text-sm">Метод a.sort() (Змінює сам список)</span>
+                                <button onclick="copySnippet(this)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2 py-1 rounded-md border border-slate-700 flex items-center gap-1 transition touch-btn shrink-0">📋 Копіювати</button>
+                            </div>
+                            <p class="text-xs text-slate-400">Сортує список «на місці». Старий порядок елементів зникає.</p>
+                            <pre class="mono text-xs text-slate-300 bg-slate-900 p-2.5 rounded overflow-x-auto">
+a = [5, 2, 9, 1]
+
+a.sort()
+print(a)  # [1, 2, 5, 9]
+
+a.sort(reverse=True)
+print(a)  # [9, 5, 2, 1]</pre>
+                        </div>
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 relative">
+                            <div class="flex justify-between items-center gap-2">
+                                <span class="text-cyan-400 font-bold block text-sm">Функція sorted(a) (Створює новий список)</span>
+                                <button onclick="copySnippet(this)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2 py-1 rounded-md border border-slate-700 flex items-center gap-1 transition touch-btn shrink-0">📋 Копіювати</button>
+                            </div>
+                            <p class="text-xs text-slate-400">Початковий список <code>a</code> залишається незмінним, а утворюється новий список <code>b</code>.</p>
+                            <pre class="mono text-xs text-slate-300 bg-slate-900 p-2.5 rounded overflow-x-auto">
+a = [5, 2, 9, 1]
+
+b = sorted(a)
+print(a)  # [5, 2, 9, 1] (не змінився!)
+print(b)  # [1, 2, 5, 9] (новий!)</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Блок 3: Класичні шкільні алгоритми -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-4">
+                    <h4 class="font-bold text-white text-base">3. Алгоритми сортування «під капотом» (Вимоги програми)</h4>
+                    <p class="text-xs md:text-sm text-slate-300">
+                        Щоб розуміти, як комп'ютер упорядковує дані всередині пам'яті, у 9 класі вивчають два алгоритми:
+                    </p>
+
+                    <!-- Бульбашка -->
+                    <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2 relative">
+                        <div class="flex justify-between items-center gap-2">
+                            <div class="font-bold text-amber-300 text-sm">Алгоритм 1: Метод обміну («Бульбашка»):</div>
+                            <button onclick="copySnippet(this)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2 py-1 rounded-md border border-slate-700 flex items-center gap-1 transition touch-btn shrink-0">📋 Копіювати</button>
+                        </div>
+                        <p class="text-xs text-slate-300">
+                            <b>Ідея:</b> проходимо по списку зліва направо, порівнюємо сусідні елементи <code>a[j]</code> та <code>a[j+1]</code>. Якщо лівий більший за правий — міняємо їх місцями. Найважче число поступово «спливає» в самий кінець списку.
+                        </p>
+                        <pre class="code-block p-3 text-xs mono text-slate-300 overflow-x-auto">
+# Сортування списку довжиною n за зростанням методом обміну:
+n = len(a)
+for i in range(n - 1):
+    for j in range(n - 1 - i):
+        if a[j] > a[j + 1]:
+            # Обмін двох сусідніх елементів у Python:
+            a[j], a[j + 1] = a[j + 1], a[j]</pre>
+                    </div>
+
+                    <!-- Вибір -->
+                    <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2 relative">
+                        <div class="flex justify-between items-center gap-2">
+                            <div class="font-bold text-cyan-300 text-sm">Алгоритм 2: Метод вибору (Selection sort):</div>
+                            <button onclick="copySnippet(this)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2 py-1 rounded-md border border-slate-700 flex items-center gap-1 transition touch-btn shrink-0">📋 Копіювати</button>
+                        </div>
+                        <p class="text-xs text-slate-300">
+                            <b>Ідея:</b> знаходимо найменший елемент серед несортованої частини списку за допомогою <code>min()</code> і міняємо його місцями з першим несортованим елементом. Потім повторюємо для решти списку.
+                        </p>
+                        <pre class="code-block p-3 text-xs mono text-slate-300 overflow-x-auto">
+n = len(a)
+for i in range(n - 1):
+    m = min(a[i:])          # шукаємо мінімум від i-го до кінця
+    ind = a.index(m, i)     # знаходимо його номер
+    a[i], a[ind] = a[ind], a[i]  # міняємо місцями</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 2: ПОШУК ЗА УМОВАМИ (УРОК 20)                                         -->
+        <!-- ========================================================================= -->
+        <section id="panel-2" class="tab-panel hidden space-y-6">
+            <div class="border-b border-slate-700 pb-4">
+                <span class="bg-indigo-900/60 text-indigo-300 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">Тема 20</span>
+                <h2 class="text-xl md:text-2xl font-bold text-white mt-2 flex items-center gap-2">
+                    <span>🔍</span> Урок 20: Пошук у списках даних, які відповідають певним умовам
+                </h2>
+                <p class="text-sm text-slate-400 mt-1">Як аналізувати списки, знаходити рекорди, рахувати дублікати та фільтрувати дані.</p>
+            </div>
+
+            <!-- Інтерактивна панель пошуку -->
+            <div class="bg-slate-900/90 border border-slate-700 p-5 rounded-2xl">
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    Досліджуваний список оцінок учнів <code>grades</code>:
+                </div>
+                <div class="flex flex-wrap gap-2 justify-center py-4 bg-slate-950 rounded-xl border border-slate-800 mb-6" id="search-array-cells">
+                    <!-- Заповнюється JS -->
+                </div>
+
+                <!-- Інтерактивні панелі пошуку -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <!-- Мінімум / Максимум -->
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col justify-between">
+                        <div>
+                            <div class="font-bold text-sm text-white mb-2">1. Пошук рекордів</div>
+                            <p class="text-xs text-slate-400 mb-3">Миттєвий пошук найбільшого або найменшого балу.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="findMax()" class="w-1/2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs transition">max(grades)</button>
+                            <button onclick="findMin()" class="w-1/2 bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 rounded-lg text-xs transition">min(grades)</button>
+                        </div>
+                    </div>
+
+                    <!-- Підрахунок кількості (count) -->
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col justify-between">
+                        <div>
+                            <div class="font-bold text-sm text-white mb-2">2. Кількість повторів</div>
+                            <p class="text-xs text-slate-400 mb-2">Скільки разів трапляється бал:</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="number" id="count-input" value="12" min="1" max="12" class="w-16 bg-slate-900 border border-slate-600 rounded-lg text-center font-bold text-sm text-white focus:outline-none focus:border-indigo-500">
+                            <button onclick="countElement()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg text-xs transition">.count(x)</button>
+                        </div>
+                    </div>
+
+                    <!-- Наявність (in) -->
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col justify-between">
+                        <div>
+                            <div class="font-bold text-sm text-white mb-2">3. Перевірка наявності</div>
+                            <p class="text-xs text-slate-400 mb-2">Чи є таке число у списку?</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="number" id="in-input" value="2" min="1" max="12" class="w-16 bg-slate-900 border border-slate-600 rounded-lg text-center font-bold text-sm text-white focus:outline-none focus:border-indigo-500">
+                            <button onclick="checkIn()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-xs transition">if x in grades</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Результат пошуку -->
+                <div id="search-result-box" class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-sm mono text-indigo-300 min-h-[48px] flex items-center justify-center text-center">
+                    Оберіть операцію пошуку вище!
+                </div>
+            </div>
+
+            <!-- ПОВНИЙ КОНСПЕКТ УРОКУ 20 -->
+            <div class="space-y-5">
+                <h3 class="text-lg font-bold text-indigo-300 border-l-4 border-indigo-500 pl-3">📘 Конспект уроку №20:</h3>
+
+                <!-- Блок 1 -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-3">
+                    <h4 class="font-bold text-white text-base">1. Швидкий пошук за допомогою вбудованих функцій</h4>
+                    <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+                        Не завжди потрібно писати довгі цикли. У більшості задач достатньо викликати одну готову функцію чи метод:
+                    </p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs md:text-sm border border-slate-700">
+                            <thead class="bg-slate-950 text-indigo-300 font-bold">
+                                <tr>
+                                    <th class="p-2.5 border-b border-slate-700">Завдання пошуку</th>
+                                    <th class="p-2.5 border-b border-slate-700">Синтаксис Python</th>
+                                    <th class="p-2.5 border-b border-slate-700">Як працює</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300">
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Найбільший елемент</td>
+                                    <td class="p-2.5 mono text-emerald-400">max(список)</td>
+                                    <td class="p-2.5">Знаходить рекордний максимум: <code>max([4, 10, 7]) &rarr; 10</code></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Найменший елемент</td>
+                                    <td class="p-2.5 mono text-emerald-400">min(список)</td>
+                                    <td class="p-2.5">Знаходить мінімум: <code>min([4, 10, 7]) &rarr; 4</code></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Кількість повторень</td>
+                                    <td class="p-2.5 mono text-emerald-400">список.count(x)</td>
+                                    <td class="p-2.5">Рахує, скільки разів значення <code>x</code> є у списку</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Номер (позиція) елемента</td>
+                                    <td class="p-2.5 mono text-emerald-400">список.index(x)</td>
+                                    <td class="p-2.5">Повертає індекс першого входження елемента <code>x</code></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Чи є взагалі такий елемент?</td>
+                                    <td class="p-2.5 mono text-emerald-400">if x in список:</td>
+                                    <td class="p-2.5">Повертає <code>True</code>, якщо значення існує, або <code>False</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Блок 2: Алгоритми пошуку за умовою з циклами -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-4">
+                    <h4 class="font-bold text-white text-base">2. Типові задачі на пошук у списках за складними умовами</h4>
+                    <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+                        Коли умови специфічні (наприклад: *порахувати оцінки вище 9* або *знайти суму лише парних чисел*), використовують циклічний перебір списку:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs md:text-sm">
+                        <!-- Задача 1 -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 relative">
+                            <div class="flex justify-between items-center gap-2">
+                                <span class="text-amber-300 font-bold block text-sm">Задача 1: Лічильник елементів за умовою</span>
+                                <button onclick="copySnippet(this)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2 py-1 rounded-md border border-slate-700 flex items-center gap-1 transition touch-btn shrink-0">📋 Копіювати</button>
+                            </div>
+                            <p class="text-xs text-slate-400">Рахуємо, скільки учнів отримали оцінку 10 і вище:</p>
+                            <pre class="mono text-xs text-slate-300 bg-slate-900 p-2.5 rounded overflow-x-auto">
+grades = [7, 10, 4, 12, 8, 11]
+k = 0  <span class="text-slate-500"># лічильник</span>
+
+for x in grades:
+    if x >= 10:
+        k = k + 1  <span class="text-slate-500"># або k += 1</span>
+
+print("Відмінників і хорошистів:", k)</pre>
+                        </div>
+
+                        <!-- Задача 2 -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 relative">
+                            <div class="flex justify-between items-center gap-2">
+                                <span class="text-cyan-300 font-bold block text-sm">Задача 2: Сума та фільтрація значень</span>
+                                <button onclick="copySnippet(this)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] px-2 py-1 rounded-md border border-slate-700 flex items-center gap-1 transition touch-btn shrink-0">📋 Копіювати</button>
+                            </div>
+                            <p class="text-xs text-slate-400">Знаходимо суму лише додатних температур:</p>
+                            <pre class="mono text-xs text-slate-300 bg-slate-900 p-2.5 rounded overflow-x-auto">
+temp = [-2, 5, 0, 3, -1, 8]
+s = 0  <span class="text-slate-500"># накопичувач суми</span>
+
+for t in temp:
+    if t > 0:
+        s = s + t
+
+print("Сума додатних температур:", s)</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 3: РЯДКИ ТА ЗРІЗИ (УРОК 21)                                           -->
+        <!-- ========================================================================= -->
+        <section id="panel-3" class="tab-panel hidden space-y-6">
+            <div class="border-b border-slate-700 pb-4">
+                <span class="bg-indigo-900/60 text-indigo-300 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">Тема 21 (Сьогоднішня)</span>
+                <h2 class="text-xl md:text-2xl font-bold text-white mt-2 flex items-center gap-2">
+                    <span>🔤</span> Урок 21: Рядки. Рядкові величини. Операції над рядками
+                </h2>
+                <p class="text-sm text-slate-400 mt-1">Рядок у Python — це майже той самий список, тільки складений із символів (літер, цифр, пропусків)!</p>
+            </div>
+
+            <!-- Інтерактивна лабораторія рядків -->
+            <div class="bg-slate-900/90 border border-slate-700 p-5 rounded-2xl">
+                <div class="flex flex-wrap gap-3 items-center justify-between mb-4">
+                    <label class="text-xs md:text-sm font-bold text-slate-200">Введіть будь-яке слово або фразу для дослідження:</label>
+                    <div class="flex items-center gap-2">
+                        <button onclick="setExampleString('Ми – учні 9 класу')" class="bg-indigo-900/60 hover:bg-indigo-800 text-indigo-300 border border-indigo-500/40 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                            📌 Фраза з підручника
+                        </button>
+                        <input type="text" id="string-input" value="Інформатика" oninput="updateStringLab()" class="bg-slate-950 border border-indigo-500/50 rounded-xl px-4 py-2 font-bold text-emerald-400 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 max-w-xs">
+                    </div>
+                </div>
+
+                <!-- Візуалізатор букв та індексів -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mb-6 overflow-x-auto">
+                    <div class="text-[11px] text-slate-500 mb-2 font-semibold">Розкладка рядка на символи та індекси (зелений зверху — з 0, сірий знизу — від'ємні з кінця):</div>
+                    <div class="flex justify-center gap-1.5 md:gap-2.5 min-w-max pb-2" id="string-letters-container">
+                        <!-- Заповнюється JS -->
+                    </div>
+                </div>
+
+                <!-- Інтерактивні кнопки зрізів та операцій -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-4">
+                    <button onclick="applySlice('first')" class="bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white p-2.5 rounded-xl font-bold text-xs transition border border-slate-700 text-left">
+                        <div class="text-emerald-400 font-mono">s[0]</div>
+                        <div class="text-[11px] text-slate-400">Перша літера</div>
+                    </button>
+                    <button onclick="applySlice('last')" class="bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white p-2.5 rounded-xl font-bold text-xs transition border border-slate-700 text-left">
+                        <div class="text-emerald-400 font-mono">s[-1]</div>
+                        <div class="text-[11px] text-slate-400">Остання літера</div>
+                    </button>
+                    <button onclick="applySlice('slice3')" class="bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white p-2.5 rounded-xl font-bold text-xs transition border border-slate-700 text-left">
+                        <div class="text-cyan-400 font-mono">s[:3]</div>
+                        <div class="text-[11px] text-slate-400">Перші 3 літери</div>
+                    </button>
+                    <button onclick="applySlice('reverse')" class="bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white p-2.5 rounded-xl font-bold text-xs transition border border-slate-700 text-left">
+                        <div class="text-amber-400 font-mono">s[::-1]</div>
+                        <div class="text-[11px] text-slate-400">Задом наперед!</div>
+                    </button>
+                    <button onclick="applySlice('len')" class="bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white p-2.5 rounded-xl font-bold text-xs transition border border-slate-700 text-left">
+                        <div class="text-purple-400 font-mono">len(s)</div>
+                        <div class="text-[11px] text-slate-400">Довжина рядка</div>
+                    </button>
+                    <button onclick="applySlice('multiply')" class="bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white p-2.5 rounded-xl font-bold text-xs transition border border-slate-700 text-left">
+                        <div class="text-pink-400 font-mono">"*" * 20</div>
+                        <div class="text-[11px] text-slate-400">Множення рядка</div>
+                    </button>
+                    <button onclick="applySlice('concat')" class="bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white p-2.5 rounded-xl font-bold text-xs transition border border-slate-700 text-left">
+                        <div class="text-blue-400 font-mono">s + " — ТОП!"</div>
+                        <div class="text-[11px] text-slate-400">Склеювання (+)</div>
+                    </button>
+                    <button onclick="applySlice('in_check')" class="bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white p-2.5 rounded-xl font-bold text-xs transition border border-slate-700 text-left">
+                        <div class="text-lime-400 font-mono">частинка in s</div>
+                        <div class="text-[11px] text-slate-400">Пошук літер (in)</div>
+                    </button>
+                </div>
+
+                <!-- Вікно результату дії -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs md:text-sm">
+                    <div class="text-slate-500 text-[11px] mb-1"># Результат виконання операції:</div>
+                    <div id="string-result-output" class="text-amber-300 font-bold">Натисніть будь-яку операцію над рядком вище</div>
+                </div>
+            </div>
+
+            <!-- ПОВНИЙ КОНСПЕКТ УРОКУ 21 -->
+            <div class="space-y-5">
+                <h3 class="text-lg font-bold text-indigo-300 border-l-4 border-indigo-500 pl-3">📘 Конспект уроку №21:</h3>
+
+                <!-- Блок 1: Що таке рядок -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-3">
+                    <h4 class="font-bold text-white text-base">1. Що таке рядок (string) у мові Python?</h4>
+                    <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+                        <b>Рядок (тип <code>str</code>)</b> — це послідовність будь-яких символів (букви, цифри, знаки, пропуски), які беруться в одинарні <code>'...'</code> або подвійні <code>"..."</code> лапки.
+                    </p>
+                    <div class="code-block p-3 text-xs md:text-sm text-emerald-400">
+                        city = "Київ"<br>
+                        school = 'Школа №15'<br>
+                        empty = ""  <span class="text-slate-500"># порожній рядок (довжина 0)</span>
+                    </div>
+                    <p class="text-xs text-slate-400 italic">
+                        💡 <b>Зверніть увагу:</b> пропуск у рядку — це повноцінний символ, який займає свою комірку та має свій індекс!
+                    </p>
+                </div>
+
+                <!-- Блок 2: Операції над рядками -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-3">
+                    <h4 class="font-bold text-white text-base">2. Основні операції над рядками</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs md:text-sm border border-slate-700">
+                            <thead class="bg-slate-950 text-indigo-300 font-bold">
+                                <tr>
+                                    <th class="p-2.5 border-b border-slate-700">Операція</th>
+                                    <th class="p-2.5 border-b border-slate-700">Знак</th>
+                                    <th class="p-2.5 border-b border-slate-700">Приклад коду</th>
+                                    <th class="p-2.5 border-b border-slate-700">Результат</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300">
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Склеювання (конкатенація)</td>
+                                    <td class="p-2.5 mono text-emerald-400">+</td>
+                                    <td class="p-2.5 mono">"Добрий " + "день"</td>
+                                    <td class="p-2.5 text-amber-300">"Добрий день"</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Повторення (дублювання)</td>
+                                    <td class="p-2.5 mono text-emerald-400">*</td>
+                                    <td class="p-2.5 mono">"=" * 10</td>
+                                    <td class="p-2.5 text-amber-300">"=========="</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Довжина рядка</td>
+                                    <td class="p-2.5 mono text-emerald-400">len()</td>
+                                    <td class="p-2.5 mono">len("Python")</td>
+                                    <td class="p-2.5 text-amber-300">6</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-white">Перевірка входження</td>
+                                    <td class="p-2.5 mono text-emerald-400">in</td>
+                                    <td class="p-2.5 mono">"ськ" in "Дніпровський"</td>
+                                    <td class="p-2.5 text-amber-300">True</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Блок 3: Зрізи рядків -->
+                <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700 space-y-3">
+                    <h4 class="font-bold text-white text-base">3. Зрізи рядків (Slices) — як вирізати частинку тексту</h4>
+                    <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+                        <b>Зріз</b> дозволяє взяти частину рядка за формулою:  
+                        <code class="text-amber-300 bg-slate-950 px-2 py-1 rounded text-xs md:text-sm font-bold">рядок[початок : кінець : крок]</code>
+                    </p>
+                    <div class="p-3 bg-amber-950/30 border border-amber-500/40 rounded-lg text-xs text-amber-300">
+                        ⚠️ <b>Головне правило зрізів:</b> символ із кінцевим номером у результат <b>НЕ ВКЛЮЧАЄТЬСЯ</b>! (точно як число у <code>range</code>).  
+                        Наприклад, <code>s[0:3]</code> візьме індекси <code>0, 1, 2</code> (всього 3 букви, а індекс 3 вже не увійде!).
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm">
+                        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                            <span class="text-emerald-400 font-bold block mb-1">Приклади для s = "Інформатика":</span>
+                            <div><code>s[0:5]</code> &rarr; <b>"Інфор"</b> (з 0 по 4 індекси)</div>
+                            <div><code>s[:3]</code> &rarr; <b>"Інф"</b> (якщо початку нема — береться від початку)</div>
+                            <div><code>s[5:]</code> &rarr; <b>"матика"</b> (якщо кінця нема — береться до кінця)</div>
+                        </div>
+                        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                            <span class="text-cyan-400 font-bold block mb-1">Зрізи з кроком:</span>
+                            <div><code>s[::2]</code> &rarr; <b>"Іфрмаиа"</b> (кожен другий символ)</div>
+                            <div><code>s[::-1]</code> &rarr; <b>"акитамофрнІ"</b> (крок -1 розгортає задом наперед!)</div>
+                            <div><code>s[2:8:2]</code> &rarr; з 2 по 7 через один символ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 4: ПРАКТИКУМ ТА ДЗ (НА ОЦІНКУ)                                        -->
+        <!-- ========================================================================= -->
+        <section id="panel-4" class="tab-panel hidden space-y-6">
+            <div class="border-b border-slate-700 pb-4">
+                <div class="flex justify-between items-center flex-wrap gap-2">
+                    <div>
+                        <span class="bg-emerald-900/60 text-emerald-300 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">Практична частина</span>
+                        <h2 class="text-xl md:text-2xl font-bold text-emerald-400 mt-2 flex items-center gap-2">
+                            <span>🎯</span> Домашнє практичне завдання до уроків 19–21
+                        </h2>
+                    </div>
+                    <span class="bg-emerald-950 border border-emerald-500/40 text-emerald-300 text-xs px-3.5 py-1.5 rounded-full font-bold shadow-lg">
+                        Оцінювання: 1 – 12 балів
+                    </span>
+                </div>
+                <p class="text-sm text-slate-400 mt-1">Виконайте завдання у середовищі Python, зробіть скріншот коду та результату і надішліть вчителеві.</p>
+            </div>
+
+            <!-- Де виконувати -->
+            <div class="bg-indigo-950/40 border border-indigo-500/30 p-4 rounded-xl flex flex-wrap justify-between items-center gap-3">
+                <div class="text-xs md:text-sm text-indigo-200">
+                    <span class="font-bold">💻 Немає встановленого Python на ПК?</span> Запустіть програму онлайн прямо у браузері телефону або комп'ютера:
+                </div>
+                <a href="https://www.programiz.com/python-programming/online-compiler/" target="_blank" rel="noopener noreferrer" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl text-xs md:text-sm transition shadow-lg flex items-center gap-1.5">
+                    <span>🌐</span> Відкрити онлайн-Python
+                </a>
+            </div>
+
+            <!-- БЛОК ЕКСПРЕС-РОЗІГРІВУ: 4 ПИТАННЯ ДЛЯ САМОПЕРЕВІРКИ -->
+            <div class="bg-slate-900/90 border border-indigo-500/40 rounded-2xl p-5 md:p-6 space-y-4">
+                <div class="flex justify-between items-center flex-wrap gap-2">
+                    <div>
+                        <span class="bg-indigo-900/80 text-indigo-300 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">Крок 1: Розігрів</span>
+                        <h3 class="text-base md:text-lg font-bold text-white mt-1 flex items-center gap-2">
+                            <span>🧠</span> Експрес-самоперевірка перед написанням коду
+                        </h3>
+                    </div>
+                    <div class="bg-slate-950 px-3.5 py-1.5 rounded-xl border border-slate-700 text-xs font-mono">
+                        Результат: <span id="quiz-score" class="font-bold text-emerald-400">0 / 4</span>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-300">
+                    Дайте відповіді на 4 короткі запитання, щоб перевірити, чи все ви запам'ятали з уроків 19–21:
+                </p>
+
+                <div class="space-y-4" id="quiz-container">
+                    <!-- Питання 1 -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2.5" id="q-card-1">
+                        <div class="text-xs md:text-sm font-semibold text-white">
+                            1. Нехай <code>a = [10, 20, 30]</code>. Яке значення має елемент <code>a[0]</code>?
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <button onclick="answerQuiz(1, 10, true, 'Точно! Нумерація списків у Python завжди починається з 0, тому a[0] == 10.')" class="q-btn-1 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                A) 10
+                            </button>
+                            <button onclick="answerQuiz(1, 20, false, 'Ні, число 20 має індекс 1 (a[1]). Пам\'ятай, рахунок з 0!')" class="q-btn-1 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                B) 20
+                            </button>
+                            <button onclick="answerQuiz(1, 30, false, 'Ні, число 30 — це останній елемент з індексом 2 (a[2]).')" class="q-btn-1 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                C) 30
+                            </button>
+                        </div>
+                        <div id="q-feedback-1" class="text-xs hidden p-2.5 rounded-lg font-medium"></div>
+                    </div>
+
+                    <!-- Питання 2 -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2.5" id="q-card-2">
+                        <div class="text-xs md:text-sm font-semibold text-white">
+                            2. Як відсортувати список <code>a</code> за <b>спаданням</b> (від найбільшого до найменшого)?
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <button onclick="answerQuiz(2, 1, false, 'Команда a.sort() сортує за зростанням (від меншого до більшого).')" class="q-btn-2 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                A) a.sort()
+                            </button>
+                            <button onclick="answerQuiz(2, 2, true, 'Чудово! Параметр reverse=True розгортає порядок сортування за спаданням.')" class="q-btn-2 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                B) a.sort(reverse=True)
+                            </button>
+                            <button onclick="answerQuiz(2, 3, false, 'Такої команди не існує в Python.')" class="q-btn-2 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                C) a.reverse_sort()
+                            </button>
+                        </div>
+                        <div id="q-feedback-2" class="text-xs hidden p-2.5 rounded-lg font-medium"></div>
+                    </div>
+
+                    <!-- Питання 3 -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2.5" id="q-card-3">
+                        <div class="text-xs md:text-sm font-semibold text-white">
+                            3. Яка команда підрахує, скільки разів оцінка <code>12</code> трапляється у списку <code>grades</code>?
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <button onclick="answerQuiz(3, 1, true, 'Правильно! Метод .count(12) підраховує кількість входжень елемента.')" class="q-btn-3 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                A) grades.count(12)
+                            </button>
+                            <button onclick="answerQuiz(3, 2, false, 'Функція len() повертає загальну довжину всього списку, а не кількість 12-ок.')" class="q-btn-3 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                B) len(grades)
+                            </button>
+                            <button onclick="answerQuiz(3, 3, false, 'Метод .index(12) повертає лише номер (індекс), а не кількість повторень.')" class="q-btn-3 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                C) grades.index(12)
+                            </button>
+                        </div>
+                        <div id="q-feedback-3" class="text-xs hidden p-2.5 rounded-lg font-medium"></div>
+                    </div>
+
+                    <!-- Питання 4 -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2.5" id="q-card-4">
+                        <div class="text-xs md:text-sm font-semibold text-white">
+                            4. Що надрукує команда <code>print("Школа"[:2])</code>?
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <button onclick="answerQuiz(4, 1, true, 'Блискуче! Зріз [:2] бере символи з індексами 0 та 1, а символ з індексом 2 не включається!')" class="q-btn-4 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                A) "Шк"
+                            </button>
+                            <button onclick="answerQuiz(4, 2, false, 'Пам\'ятайте головне правило зрізів: кінцевий індекс 2 ніколи не входить у результат!')" class="q-btn-4 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                B) "Шко"
+                            </button>
+                            <button onclick="answerQuiz(4, 3, false, 'Ні, оскільки початок не вказано [:2], зріз завжди починається з самого початку рядка.')" class="q-btn-4 bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg text-xs font-mono text-slate-200 border border-slate-700 transition text-left">
+                                C) "кол"
+                            </button>
+                        </div>
+                        <div id="q-feedback-4" class="text-xs hidden p-2.5 rounded-lg font-medium"></div>
+                    </div>
+                </div>
+
+                <div id="quiz-final-congrats" class="hidden p-4 bg-emerald-950/60 border border-emerald-500/50 rounded-xl text-center space-y-1">
+                    <div class="text-base font-bold text-emerald-300">🎉 Чудово! Розігрів успішно пройдено!</div>
+                    <p class="text-xs text-emerald-200">Ви відмінно засвоїли всі ключові правила. Тепер переходьте до Кроку 2 — виконання практичної програми нижче!</p>
+                </div>
+            </div>
+
+            <!-- Умова задачі -->
+            <div class="bg-slate-900/90 border border-slate-700 p-5 rounded-2xl space-y-4">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>📌</span> Завдання проєкту: «Генератор персонального квитка-запрошення»
+                </h3>
+                <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+                    Складіть програму мовою Python, яка запитує у користувача <b>його ім'я</b> та <b>назву шкільного заходу</b>, а потім формує красивий стилізований квиток із перевірками:
+                </p>
+                <div class="space-y-2 text-xs md:text-sm text-slate-300">
+                    <div class="flex items-start gap-2">
+                        <span class="text-emerald-400 font-bold">✔</span>
+                        <span>Виводить декоративну рамку з 35 зірочок через множення рядків <code>"*" * 35</code>.</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="text-emerald-400 font-bold">✔</span>
+                        <span>Склеює привітання з іменем та назвою заходу через знак <code>+</code>.</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="text-emerald-400 font-bold">✔</span>
+                        <span>Перевіряє першу літеру імені <code>name[0]</code> — якщо це літера <b>"А"</b> (або будь-яка інша на вибір), виводить бонусну інформацію.</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="text-emerald-400 font-bold">✔</span>
+                        <span>Перевіряє через <code>in</code>, чи є в назві заходу слово <code>"Свято"</code> або <code>"День"</code>.</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="text-emerald-400 font-bold">✔</span>
+                        <span>Виводить загальну кількість символів у квитку за допомогою функції <code>len()</code>.</span>
+                    </div>
+                </div>
+
+                <!-- Приклад роботи програми (Що має вивести програма) -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
+                    <div class="text-[11px] text-indigo-400 font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
+                        <span>💻</span> Приклад роботи вашої програми в консолі:
+                    </div>
+                    <pre class="mono text-xs text-slate-300 bg-slate-900 p-3 rounded-lg overflow-x-auto leading-relaxed border border-slate-800">
+Введіть ваше ім'я: Андрій
+Введіть назву заходу: Шкільне Свято осені
+***********************************
+КВИТОК ДЛЯ: Андрій
+ЗАХІД: Шкільне Свято осені
+⭐ Бонус: Вам надано VIP-місце у 1 ряду!
+👗 Дрес-код: святковий одяг обов'язковий!
+Символів у назві квитка: 27
+***********************************</pre>
+                </div>
+
+                <!-- План дій для написання коду -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
+                    <div class="text-[11px] text-amber-400 font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
+                        <span>📝</span> План дій для написання програми:
+                    </div>
+                    <ol class="text-xs text-slate-300 space-y-1.5 list-decimal list-inside leading-relaxed">
+                        <li>Запитайте у користувача ім'я та захід через команду <code>input()</code>.</li>
+                        <li>Надрукуйте лінію з 35 зірочок через множення <code>"*" * 35</code>.</li>
+                        <li>Виведіть привітання квитка, склеївши текст через оператор <code>+</code>.</li>
+                        <li>Складіть умову з індексом <code>if name[0] == ...</code> для перевірки першої літери імені.</li>
+                        <li>Складіть перевірку з оператором <code>if "Свято" in event:</code> для пошуку слова в назві.</li>
+                        <li>Порахуйте та надрукуйте довжину тексту за допомогою функції <code>len()</code>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Інструкція зі здачі -->
+            <div class="bg-emerald-950/30 border border-emerald-500/30 p-4 rounded-xl flex items-center gap-3">
+                <div class="text-2xl">📸</div>
+                <div class="text-xs text-emerald-200">
+                    <b>Що прикріпити для перевірки:</b> Зробіть скріншот екрана (або фото з телефону), де видно ваш написаний код та результат роботи у консолі, і надішліть вчителеві у Google Classroom / месенджер.
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Скрипти інтерактиву -->
+    <script>
+        // Перемикання вкладок
+        function switchTab(index) {
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                if (i === index) {
+                    btn.className = "tab-btn touch-btn py-2.5 px-1.5 sm:py-3 sm:px-2 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition text-center flex items-center justify-center gap-1";
+                } else if (i === 4) {
+                    btn.className = "tab-btn touch-btn col-span-2 sm:col-span-1 py-2.5 px-1.5 sm:py-3 sm:px-2 rounded-xl font-bold text-xs sm:text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition text-center shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-1";
+                } else {
+                    btn.className = "tab-btn touch-btn py-2.5 px-1.5 sm:py-3 sm:px-2 rounded-xl font-bold text-xs sm:text-sm bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-center flex items-center justify-center gap-1";
+                }
+            });
+
+            document.querySelectorAll('.tab-panel').forEach((panel, i) => {
+                if (i === index) panel.classList.remove('hidden');
+                else panel.classList.add('hidden');
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ================= TAB 0: Шпаргалка =================
+        const introArray = [14, 28, 5, 92, 40];
+        function renderIntroArray() {
+            const container = document.getElementById('intro-array-cells');
+            if (!container) return;
+            container.innerHTML = '';
+            introArray.forEach((val, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-slate-900 border border-indigo-500/40 hover:border-indigo-400 p-2 sm:p-3 rounded-xl flex flex-col items-center min-w-[54px] sm:min-w-[64px] card-anim touch-btn';
+                btn.onclick = () => {
+                    document.getElementById('intro-info-box').innerHTML = 
+                        `Елемент <b>a[${i}]</b> дорівнює значенню <span class="text-amber-400 font-bold">${val}</span> (останній можна також викликати як <b>a[${i - introArray.length}]</b>)`;
+                };
+                btn.innerHTML = `
+                    <span class="text-[9px] sm:text-[10px] text-slate-400 mono">a[${i}]</span>
+                    <span class="text-base sm:text-lg font-bold text-white mono">${val}</span>
+                    <span class="text-[8px] sm:text-[9px] text-indigo-400 mono">[${i - introArray.length}]</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        // ================= TAB 1: Сортування =================
+        let sortArr = [38, 12, 85, 4, 62, 27];
+
+        function renderSortVisualizer(highlightIdx = []) {
+            const container = document.getElementById('sort-visualizer');
+            if (!container) return;
+            container.innerHTML = '';
+            const maxVal = Math.max(...sortArr, 100);
+
+            sortArr.forEach((val, idx) => {
+                const barHeight = Math.max(20, (val / maxVal) * 110);
+                const isHighlight = highlightIdx.includes(idx);
+                const col = document.createElement('div');
+                col.className = 'flex flex-col items-center justify-end h-full';
+                col.innerHTML = `
+                    <span class="text-[11px] sm:text-xs font-bold mono mb-1 ${isHighlight ? 'text-amber-400 font-extrabold' : 'text-slate-300'}">${val}</span>
+                    <div class="w-8 sm:w-10 md:w-12 rounded-t-lg transition-all duration-300 ${isHighlight ? 'bg-amber-500 shadow-lg shadow-amber-500/50' : 'bg-indigo-600'}" style="height: ${barHeight}px;"></div>
+                    <span class="text-[9px] sm:text-[10px] text-slate-500 mono mt-1">a[${idx}]</span>
+                `;
+                container.appendChild(col);
+            });
+        }
+
+        function sortAscending() {
+            sortArr.sort((a, b) => a - b);
+            renderSortVisualizer();
+            document.getElementById('sort-code-output').innerText = "a.sort()  # Сортує список від найменшого до найбільшого: " + JSON.stringify(sortArr);
+        }
+
+        function sortDescending() {
+            sortArr.sort((a, b) => b - a);
+            renderSortVisualizer();
+            document.getElementById('sort-code-output').innerText = "a.sort(reverse=True)  # Сортує список за спаданням: " + JSON.stringify(sortArr);
+        }
+
+        function resetSortArray() {
+            sortArr = Array.from({length: 6}, () => Math.floor(Math.random() * 85) + 10);
+            renderSortVisualizer();
+            document.getElementById('sort-code-output').innerText = "a = " + JSON.stringify(sortArr) + "  # Новий згенерований список";
+        }
+
+        function stepBubbleSort() {
+            for (let i = 0; i < sortArr.length - 1; i++) {
+                if (sortArr[i] > sortArr[i + 1]) {
+                    let temp = sortArr[i];
+                    sortArr[i] = sortArr[i + 1];
+                    sortArr[i + 1] = temp;
+                    renderSortVisualizer([i, i + 1]);
+                    document.getElementById('sort-code-output').innerText = `Обмін елементів: a[${i}] (${sortArr[i+1]}) та a[${i+1}] (${sortArr[i]}) помінялися місцями!`;
+                    return;
+                }
+            }
+            renderSortVisualizer([]);
+            document.getElementById('sort-code-output').innerText = "Список уже повністю відсортований!";
+        }
+
+        // ================= TAB 2: Пошук =================
+        const searchArr = [9, 11, 4, 12, 7, 10, 4, 12];
+
+        function renderSearchArray(highlightIdx = []) {
+            const container = document.getElementById('search-array-cells');
+            if (!container) return;
+            container.innerHTML = '';
+            searchArr.forEach((val, i) => {
+                const isHighlight = highlightIdx.includes(i);
+                const box = document.createElement('div');
+                box.className = `p-3 rounded-xl border flex flex-col items-center min-w-[56px] transition-all duration-300 ${isHighlight ? 'bg-amber-500/20 border-amber-400 scale-105' : 'bg-slate-900 border-slate-700'}`;
+                box.innerHTML = `
+                    <span class="text-[10px] text-slate-400 mono">a[${i}]</span>
+                    <span class="text-base font-bold mono ${isHighlight ? 'text-amber-300' : 'text-white'}">${val}</span>
+                `;
+                container.appendChild(box);
+            });
+        }
+
+        function findMax() {
+            const maxVal = Math.max(...searchArr);
+            const indices = searchArr.map((v, i) => v === maxVal ? i : -1).filter(i => i !== -1);
+            renderSearchArray(indices);
+            document.getElementById('search-result-box').innerHTML = `Найвищий бал: <span class="text-emerald-400 font-bold text-base">${maxVal}</span> (знаходиться на індексах: ${indices.join(', ')})`;
+        }
+
+        function findMin() {
+            const minVal = Math.min(...searchArr);
+            const indices = searchArr.map((v, i) => v === minVal ? i : -1).filter(i => i !== -1);
+            renderSearchArray(indices);
+            document.getElementById('search-result-box').innerHTML = `Найнижчий бал: <span class="text-rose-400 font-bold text-base">${minVal}</span> (знаходиться на індексах: ${indices.join(', ')})`;
+        }
+
+        function countElement() {
+            const inputVal = document.getElementById('count-input').value;
+            const val = parseInt(inputVal);
+            if (isNaN(val)) {
+                document.getElementById('search-result-box').innerText = "Введіть число для пошуку!";
+                return;
+            }
+            const indices = searchArr.map((v, i) => v === val ? i : -1).filter(i => i !== -1);
+            renderSearchArray(indices);
+            document.getElementById('search-result-box').innerHTML = `Оцінка <span class="text-amber-400 font-bold">${val}</span> зустрічається у списку <span class="text-emerald-400 font-bold text-base">${indices.length}</span> раз(ів).`;
+        }
+
+        function checkIn() {
+            const inputVal = document.getElementById('in-input').value;
+            const val = parseInt(inputVal);
+            if (isNaN(val)) {
+                document.getElementById('search-result-box').innerText = "Введіть число для перевірки!";
+                return;
+            }
+            const has = searchArr.includes(val);
+            if (has) {
+                const indices = searchArr.map((v, i) => v === val ? i : -1).filter(i => i !== -1);
+                renderSearchArray(indices);
+                document.getElementById('search-result-box').innerHTML = `Так! Значення <span class="text-emerald-400 font-bold">${val}</span> знайдено у списку (True).`;
+            } else {
+                renderSearchArray([]);
+                document.getElementById('search-result-box').innerHTML = `Ні! Значення <span class="text-rose-400 font-bold">${val}</span> у списку відсутнє (False).`;
+            }
+        }
+
+        // ================= TAB 3: Рядки =================
+        function updateStringLab(highlightIdx = []) {
+            const rawVal = document.getElementById('string-input').value;
+            const str = rawVal.length > 0 ? rawVal : " ";
+            const container = document.getElementById('string-letters-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            for (let i = 0; i < str.length; i++) {
+                const isHighlight = highlightIdx.includes(i);
+                const char = str[i] === ' ' ? '␣' : str[i];
+                const card = document.createElement('div');
+                card.className = `flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-xl border min-w-[34px] sm:min-w-[42px] transition ${isHighlight ? 'bg-amber-500/30 border-amber-400 scale-105' : 'bg-slate-900 border-slate-700'}`;
+                card.innerHTML = `
+                    <span class="text-[9px] sm:text-[10px] text-emerald-400 font-mono">${i}</span>
+                    <span class="text-sm sm:text-base md:text-lg font-bold ${isHighlight ? 'text-amber-300' : 'text-white'}">${char}</span>
+                    <span class="text-[8px] sm:text-[9px] text-slate-500 font-mono">${i - str.length}</span>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        function applySlice(type) {
+            const inputEl = document.getElementById('string-input');
+            const str = inputEl.value.trim() || "Інформатика";
+            const out = document.getElementById('string-result-output');
+
+            if (type === 'first') {
+                updateStringLab([0]);
+                out.innerText = `s[0] -> "${str[0]}"  # Перший символ рядка`;
+            } else if (type === 'last') {
+                updateStringLab([str.length - 1]);
+                out.innerText = `s[-1] -> "${str[str.length - 1]}"  # Останній символ рядка`;
+            } else if (type === 'slice3') {
+                const count = Math.min(3, str.length);
+                const indices = Array.from({length: count}, (_, i) => i);
+                updateStringLab(indices);
+                out.innerText = `s[:3] -> "${str.slice(0, 3)}"  # Перші три символи (індекси 0, 1, 2)`;
+            } else if (type === 'reverse') {
+                updateStringLab([]);
+                out.innerText = `s[::-1] -> "${str.split('').reverse().join('')}"  # Рядок розгорнуто задом наперед`;
+            } else if (type === 'len') {
+                updateStringLab([]);
+                out.innerText = `len(s) -> ${str.length}  # Загальна кількість символів у рядку`;
+            } else if (type === 'multiply') {
+                updateStringLab([]);
+                out.innerText = `"*" * 20 -> "${'*'.repeat(20)}"  # Декоративна лінія з 20 символів`;
+            } else if (type === 'concat') {
+                updateStringLab([]);
+                out.innerText = `s + " — ТОП!" -> "${str + ' — ТОП!'}"  # Склеювання рядків`;
+            } else if (type === 'in_check') {
+                const sub = str.length >= 3 ? str.slice(1, 3) : (str[0] || "а");
+                const has = str.includes(sub);
+                const startIdx = str.indexOf(sub);
+                const highlight = [];
+                for (let i = 0; i < sub.length; i++) highlight.push(startIdx + i);
+                updateStringLab(highlight);
+                out.innerText = `'${sub}' in s -> ${has ? 'True (частинку "' + sub + '" знайдено у слові!)' : 'False'}`;
+            }
+        }
+
+        // Універсальне копіювання коду з будь-якого блоку
+        function copySnippet(btn) {
+            const container = btn.closest('div');
+            const pre = container.querySelector('pre') || container.parentElement.querySelector('pre');
+            if (!pre) return;
+            const text = pre.innerText || pre.textContent;
+            navigator.clipboard.writeText(text.trim()).then(() => {
+                const oldHTML = btn.innerHTML;
+                btn.innerHTML = '✅ Скопійовано!';
+                btn.classList.add('text-emerald-400', 'border-emerald-500');
+                setTimeout(() => {
+                    btn.innerHTML = oldHTML;
+                    btn.classList.remove('text-emerald-400', 'border-emerald-500');
+                }, 1800);
+            });
+        }
+
+        // Встановлення зразкового рядка
+        function setExampleString(val) {
+            const input = document.getElementById('string-input');
+            input.value = val;
+            updateStringLab();
+            document.getElementById('string-result-output').innerText = `Завантажено фразу: "${val}" (довжина ${val.length} символів). Тепер спробуйте операції зі зрізами!`;
+        }
+
+        // Логіка квізу самоперевірки
+        const quizAnswers = { 1: false, 2: false, 3: false, 4: false };
+
+        function answerQuiz(qNum, optId, isCorrect, feedbackText) {
+            const fb = document.getElementById(`q-feedback-${qNum}`);
+            const buttons = document.querySelectorAll(`.q-btn-${qNum}`);
+
+            fb.classList.remove('hidden', 'bg-emerald-950/40', 'border-emerald-500/40', 'text-emerald-300', 'bg-rose-950/40', 'border-rose-500/40', 'text-rose-300');
+
+            if (isCorrect) {
+                fb.classList.add('bg-emerald-950/40', 'border', 'border-emerald-500/40', 'text-emerald-300');
+                fb.innerHTML = `✅ <b>Правильно!</b> ${feedbackText}`;
+                quizAnswers[qNum] = true;
+                buttons.forEach(btn => btn.disabled = true);
+            } else {
+                fb.classList.add('bg-rose-950/40', 'border', 'border-rose-500/40', 'text-rose-300');
+                fb.innerHTML = `❌ <b>Спробуйте ще:</b> ${feedbackText}`;
+            }
+
+            // Оновлення лічильника
+            const score = Object.values(quizAnswers).filter(Boolean).length;
+            document.getElementById('quiz-score').innerText = `${score} / 4`;
+
+            if (score === 4) {
+                document.getElementById('quiz-final-congrats').classList.remove('hidden');
+            }
+        }
+
+        // Ініціалізація
+        renderIntroArray();
+        renderSortVisualizer();
+        renderSearchArray();
+        updateStringLab();
+    </script>
+</body>
+</html>
